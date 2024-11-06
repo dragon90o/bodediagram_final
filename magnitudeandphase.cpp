@@ -1,5 +1,3 @@
-
-// magnitudeandphase.cpp
 #include "magnitudeandphase.h"
 #include <iostream>
 
@@ -12,7 +10,7 @@ MagnitudeAndPhase::MagnitudeAndPhase(QLineEdit *transferFunctionLineEdit, QLineE
 {
 }
 
-void MagnitudeAndPhase::calculate() {
+std::pair<std::vector<double>, std::vector<double>> MagnitudeAndPhase::frequencies() {
     // Implementación del método
     std::cout << "Calculando Magnitud y Fase" << std::endl;
 }

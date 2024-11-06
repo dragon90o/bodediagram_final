@@ -1,5 +1,3 @@
-
-// magnitudeandphase.h
 #ifndef MAGNITUDEANDPHASE_H
 #define MAGNITUDEANDPHASE_H
 
@@ -22,7 +20,7 @@
 public:
     explicit MagnitudeAndPhase(QLineEdit *transferFunctionLineEdit, QLineEdit *sigmaLineEdit, QLineEdit *frequencyMaxlineEdit, QLineEdit *frequencyMinlineEdit, QObject *parent = nullptr);
 
-    void calculate();  // Método público para la lógica de cálculo
+    std::pair<std::vector<double>, std::vector<double>> frequencies();  // Método público para la lógica de cálculo
 
 private:
     QLineEdit *transferFunctionLineEdit;

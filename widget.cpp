@@ -1,5 +1,3 @@
-
-// widget.cpp
 #include "widget.h"
 #include "ui_widget.h"
 #include "magnitudeandphase.h"
@@ -20,5 +18,5 @@ Widget::~Widget()
 
 void Widget::onCalculatePushButtonclicked()
 {
-    mapObject.calculate();
+    mapObject.frequencies();
 }
