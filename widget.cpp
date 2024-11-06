@@ -1,3 +1,5 @@
+
+// widget.cpp
 #include "widget.h"
 #include "ui_widget.h"
 #include "magnitudeandphase.h"
@@ -16,11 +18,7 @@ Widget::~Widget()
     delete ui;
 }
 
-
-
 void Widget::onCalculatePushButtonclicked()
 {
-
     mapObject.calculate();
 }
-
