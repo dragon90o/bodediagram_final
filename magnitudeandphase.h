@@ -2,7 +2,6 @@
 #define MAGNITUDEANDPHASE_H
 
 #include <QLineEdit>
-#include <QObject>
 #include <iostream>
 #include <string>
 #include <sstream>
@@ -12,6 +11,7 @@
 #include <utility>
 #include <iomanip>
 #include "exprtk/exprtk.hpp"
+#include <QObject>
 
     class MagnitudeAndPhase : public QObject
 {

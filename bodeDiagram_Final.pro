@@ -26,7 +26,7 @@ FORMS += \
 INCLUDEPATH += \
     $$PWD/exprtk
 
-MOC_DIR = ./moc
+MOC_DIR = $$PWD/build/Desktop_Qt_6_7_3_MSVC2019_64bit-Debug/moc
 
 # Default rules for deployment.
 qnx: target.path = /tmp/$${TARGET}/bin
