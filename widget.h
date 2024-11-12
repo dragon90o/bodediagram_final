@@ -24,6 +24,6 @@ private slots:
 
 private:
     Ui::Widget *ui;
-    MagnitudeAndPhase mapObject;
+    MagnitudeAndPhase* mapObject;
 };
 #endif // WIDGET_H
