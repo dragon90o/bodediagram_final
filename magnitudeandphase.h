@@ -10,8 +10,10 @@
 #include <cmath>
 #include <utility>
 #include <iomanip>
+#include <regex>
 #include "exprtk/exprtk.hpp"
 #include <QObject>
+#include <Eigen/Dense>
 
     class MagnitudeAndPhase : public QObject
 {
@@ -20,23 +22,28 @@
 public:
     MagnitudeAndPhase(QWidget* parent = nullptr);
 
-    explicit MagnitudeAndPhase(int freqMin, int freqMax, std::string userFunction ,double s_real, QLineEdit *transferFunctionLineEdit, QLineEdit *sigmaLineEdit, QLineEdit *frequencyMaxlineEdit, QLineEdit *frequencyMinlineEdit, QObject *parent = nullptr);
+    explicit MagnitudeAndPhase(int freqMin, int freqMax, std::string numerator, std::string denominator ,double s_real, QLineEdit *numeratorLineEdit, QLineEdit *denominatorLineEdit, QLineEdit *sigmaLineEdit, QLineEdit *frequencyMaxlineEdit, QLineEdit *frequencyMinlineEdit, QObject *parent = nullptr);
 
+    std::vector<double> parseCoefficients(const std :: string& polynomial);
+    std::vector<std::complex<double>> findRoots(const std::vector<double>& coefficients);
     std::pair<std::vector<double>, std::vector<double>> frequencies();  // Método público para la lógica de cálculo
-    std::string translatefunction(double magnitude);
-    double evaluatetranslatedfunction(std::string translated);
-    double calculateMagnitude(double w);
-    double calculatePhase(double w);
+    std::complex<double> translateFunction(double angularFrequency, bool isNumerator);
+    std::pair<double, std::complex<double>> calculateMagnitude(double angularFrequency);
+    double calculatePhase(const std::complex<double>& transferFunction);
+    void processTransferFunction();
+
 
 private:
-    QLineEdit *transferFunctionLineEdit;
+    QLineEdit *numeratorLineEdit;
+    QLineEdit *denominatorLineEdit;
     QLineEdit *sigmaLineEdit;
     QLineEdit *frequencyMaxlineEdit;
     QLineEdit *frequencyMinlineEdit;
     double _s_real;
     int _freqMin;
     int _freqMax;
-    std::string _userFunction;
+    std::string _numerator;
+    std::string _denominator;
 };
 
 #endif // MAGNITUDEANDPHASE_H
