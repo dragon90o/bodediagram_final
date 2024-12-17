@@ -14,23 +14,32 @@
 #include "exprtk/exprtk.hpp"
 #include <QObject>
 #include <Eigen/Dense>
+#include <QTextEdit>
 
-    class MagnitudeAndPhase : public QObject
+
+class MagnitudeAndPhase : public QObject
 {
     Q_OBJECT
 
 public:
     MagnitudeAndPhase(QWidget* parent = nullptr);
 
-    explicit MagnitudeAndPhase(int freqMin, int freqMax, std::string numerator, std::string denominator ,double s_real, QLineEdit *numeratorLineEdit, QLineEdit *denominatorLineEdit, QLineEdit *sigmaLineEdit, QLineEdit *frequencyMaxlineEdit, QLineEdit *frequencyMinlineEdit, QObject *parent = nullptr);
+    explicit MagnitudeAndPhase(int freqMin, int freqMax, std::string numerator, std::string denominator,
+                               double s_real, QLineEdit *numeratorLineEdit,
+                               QLineEdit *denominatorLineEdit, QLineEdit *sigmaLineEdit,
+                               QLineEdit *frequencyMaxlineEdit, QLineEdit *frequencyMinlineEdit,
+                               QTextEdit *printText, QTextEdit *printTextIsStable, QObject *parent = nullptr);
 
+    std::string processTransferFunction();
     std::vector<double> parseCoefficients(const std :: string& polynomial);
     std::vector<std::complex<double>> findRoots(const std::vector<double>& coefficients);
     std::pair<std::vector<double>, std::vector<double>> frequencies();  // Método público para la lógica de cálculo
     std::complex<double> translateFunction(double angularFrequency, bool isNumerator);
     std::pair<double, std::complex<double>> calculateMagnitude(double angularFrequency);
     double calculatePhase(const std::complex<double>& transferFunction);
-    void processTransferFunction();
+    bool isStable();
+
+
 
 
 private:
@@ -44,7 +53,11 @@ private:
     int _freqMax;
     std::string _numerator;
     std::string _denominator;
+    QTextEdit *printText;
+    QTextEdit *printTextIsStable;
+
+
+
 };
 
 #endif // MAGNITUDEANDPHASE_H
-

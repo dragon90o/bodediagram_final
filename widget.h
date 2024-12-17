@@ -3,6 +3,12 @@
 
 #include <QWidget>
 #include <magnitudeandphase.h>
+#include <QtCharts/QChartView>
+#include <QPrinter>
+#include <QDebug>
+#include <QPushButton>
+#include <QTextEdit>
+#include <QtCharts/QChart>
 
 QT_BEGIN_NAMESPACE
 namespace Ui {
@@ -21,10 +27,14 @@ public:
 private slots:
 
     void onCalculatePushButtonclicked();
+    void onExportButtonClicked();
 
 private:
     Ui::Widget *ui;
     MagnitudeAndPhase* mapObject;
+
+    QChart *magnitudeChart = nullptr;
+    QChart *phaseChart = nullptr;
 
 };
 #endif // WIDGET_H

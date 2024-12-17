@@ -6,98 +6,257 @@
    <rect>
     <x>0</x>
     <y>0</y>
-    <width>959</width>
-    <height>600</height>
+    <width>968</width>
+    <height>709</height>
    </rect>
   </property>
   <property name="windowTitle">
    <string>Widget</string>
   </property>
-  <widget class="QChartView" name="magnitudeGraphicView">
+  <widget class="QFrame" name="frame">
    <property name="geometry">
     <rect>
-     <x>35</x>
-     <y>21</y>
-     <width>431</width>
-     <height>261</height>
+     <x>10</x>
+     <y>570</y>
+     <width>501</width>
+     <height>121</height>
     </rect>
    </property>
+   <property name="frameShape">
+    <enum>QFrame::Shape::StyledPanel</enum>
+   </property>
+   <property name="frameShadow">
+    <enum>QFrame::Shadow::Raised</enum>
+   </property>
+   <layout class="QHBoxLayout" name="horizontalLayout_3">
+    <item>
+     <widget class="QGroupBox" name="groupBox_3">
+      <property name="title">
+       <string>Export Graphics In .Pdf Format</string>
+      </property>
+      <layout class="QVBoxLayout" name="verticalLayout_4">
+       <item>
+        <layout class="QHBoxLayout" name="horizontalLayout">
+         <item>
+          <widget class="QPushButton" name="exportButton">
+           <property name="text">
+            <string> Export</string>
+           </property>
+          </widget>
+         </item>
+        </layout>
+       </item>
+      </layout>
+     </widget>
+    </item>
+   </layout>
   </widget>
-  <widget class="QChartView" name="phaseGraphicView">
+  <widget class="QFrame" name="frame_2">
    <property name="geometry">
     <rect>
-     <x>480</x>
-     <y>20</y>
-     <width>451</width>
-     <height>261</height>
+     <x>10</x>
+     <y>330</y>
+     <width>501</width>
+     <height>241</height>
     </rect>
    </property>
+   <property name="frameShape">
+    <enum>QFrame::Shape::StyledPanel</enum>
+   </property>
+   <property name="frameShadow">
+    <enum>QFrame::Shadow::Raised</enum>
+   </property>
+   <layout class="QHBoxLayout" name="horizontalLayout_2">
+    <item>
+     <widget class="QGroupBox" name="groupBox">
+      <property name="title">
+       <string>Transfer Function</string>
+      </property>
+      <layout class="QVBoxLayout" name="verticalLayout_2">
+       <item>
+        <layout class="QGridLayout" name="gridLayout">
+         <item row="0" column="2" colspan="3">
+          <widget class="QLineEdit" name="numeratorLineEdit">
+           <property name="text">
+            <string>s^2 + 3s + 2</string>
+           </property>
+           <property name="clearButtonEnabled">
+            <bool>true</bool>
+           </property>
+          </widget>
+         </item>
+         <item row="3" column="1" colspan="2">
+          <widget class="QLineEdit" name="frequencyMinlineEdit">
+           <property name="text">
+            <string>1</string>
+           </property>
+           <property name="clearButtonEnabled">
+            <bool>true</bool>
+           </property>
+          </widget>
+         </item>
+         <item row="2" column="0" colspan="2">
+          <widget class="QLabel" name="label_2">
+           <property name="text">
+            <string>Sigma σ :</string>
+           </property>
+          </widget>
+         </item>
+         <item row="3" column="3">
+          <widget class="QLabel" name="label_4">
+           <property name="text">
+            <string>Frequency Max(Hz):</string>
+           </property>
+          </widget>
+         </item>
+         <item row="4" column="0" colspan="5">
+          <widget class="QPushButton" name="calculatePushButton">
+           <property name="text">
+            <string>Calculate</string>
+           </property>
+          </widget>
+         </item>
+         <item row="1" column="2" colspan="3">
+          <widget class="QLineEdit" name="denominatorLineEdit">
+           <property name="text">
+            <string>s^2 + 5s + 6</string>
+           </property>
+           <property name="placeholderText">
+            <string/>
+           </property>
+           <property name="clearButtonEnabled">
+            <bool>true</bool>
+           </property>
+          </widget>
+         </item>
+         <item row="2" column="2" colspan="2">
+          <widget class="QLineEdit" name="sigmaLineEdit">
+           <property name="text">
+            <string>0</string>
+           </property>
+           <property name="clearButtonEnabled">
+            <bool>true</bool>
+           </property>
+          </widget>
+         </item>
+         <item row="3" column="0">
+          <widget class="QLabel" name="label_3">
+           <property name="text">
+            <string>Frequency Min (Hz):</string>
+           </property>
+          </widget>
+         </item>
+         <item row="1" column="0">
+          <widget class="QLabel" name="label_5">
+           <property name="text">
+            <string>Denominator D(s):</string>
+           </property>
+          </widget>
+         </item>
+         <item row="0" column="0" colspan="2">
+          <widget class="QLabel" name="label">
+           <property name="text">
+            <string> Numerator N(s):</string>
+           </property>
+          </widget>
+         </item>
+         <item row="3" column="4">
+          <widget class="QLineEdit" name="frequencyMaxlineEdit">
+           <property name="text">
+            <string>1000</string>
+           </property>
+           <property name="clearButtonEnabled">
+            <bool>true</bool>
+           </property>
+          </widget>
+         </item>
+        </layout>
+       </item>
+      </layout>
+     </widget>
+    </item>
+   </layout>
   </widget>
-  <widget class="QWidget" name="layoutWidget">
+  <widget class="QFrame" name="frame_3">
    <property name="geometry">
     <rect>
-     <x>30</x>
-     <y>300</y>
-     <width>449</width>
-     <height>146</height>
+     <x>10</x>
+     <y>10</y>
+     <width>931</width>
+     <height>321</height>
     </rect>
    </property>
-   <layout class="QGridLayout" name="gridLayout">
-    <item row="3" column="0">
-     <widget class="QLabel" name="label_3">
-      <property name="text">
-       <string>Frequency Min (Hz):</string>
+   <property name="frameShape">
+    <enum>QFrame::Shape::StyledPanel</enum>
+   </property>
+   <property name="frameShadow">
+    <enum>QFrame::Shadow::Raised</enum>
+   </property>
+   <layout class="QVBoxLayout" name="verticalLayout_6">
+    <item>
+     <widget class="QGroupBox" name="groupBox_4">
+      <property name="title">
+       <string>Bode Diagram</string>
       </property>
+      <layout class="QHBoxLayout" name="horizontalLayout_4">
+       <item>
+        <widget class="QChartView" name="magnitudeGraphicView"/>
+       </item>
+       <item>
+        <widget class="QChartView" name="phaseGraphicView"/>
+       </item>
+      </layout>
      </widget>
     </item>
-    <item row="1" column="2" colspan="3">
-     <widget class="QLineEdit" name="denominatorLineEdit"/>
-    </item>
-    <item row="0" column="2" colspan="3">
-     <widget class="QLineEdit" name="numeratorLineEdit"/>
-    </item>
-    <item row="4" column="0" colspan="5">
-     <widget class="QPushButton" name="calculatePushButton">
-      <property name="text">
-       <string>Calculate</string>
+   </layout>
+  </widget>
+  <widget class="QFrame" name="frame_4">
+   <property name="geometry">
+    <rect>
+     <x>520</x>
+     <y>330</y>
+     <width>421</width>
+     <height>361</height>
+    </rect>
+   </property>
+   <property name="frameShape">
+    <enum>QFrame::Shape::StyledPanel</enum>
+   </property>
+   <property name="frameShadow">
+    <enum>QFrame::Shadow::Raised</enum>
+   </property>
+   <layout class="QVBoxLayout" name="verticalLayout_5">
+    <item>
+     <widget class="QGroupBox" name="groupBox_2">
+      <property name="title">
+       <string>Results</string>
       </property>
-     </widget>
-    </item>
-    <item row="3" column="4">
-     <widget class="QLineEdit" name="frequencyMaxlineEdit"/>
-    </item>
-    <item row="1" column="0">
-     <widget class="QLabel" name="label_5">
-      <property name="text">
-       <string>Denominator D(s):</string>
-      </property>
-     </widget>
-    </item>
-    <item row="0" column="0" colspan="2">
-     <widget class="QLabel" name="label">
-      <property name="text">
-       <string> Numerator N(s):</string>
-      </property>
-     </widget>
-    </item>
-    <item row="2" column="0" colspan="2">
-     <widget class="QLabel" name="label_2">
-      <property name="text">
-       <string>Sigma</string>
-      </property>
-     </widget>
-    </item>
-    <item row="2" column="2" colspan="2">
-     <widget class="QLineEdit" name="sigmaLineEdit"/>
-    </item>
-    <item row="3" column="1" colspan="2">
-     <widget class="QLineEdit" name="frequencyMinlineEdit"/>
-    </item>
-    <item row="3" column="3">
-     <widget class="QLabel" name="label_4">
-      <property name="text">
-       <string>Frequency Max(Hz):</string>
-      </property>
+      <layout class="QVBoxLayout" name="verticalLayout_3">
+       <item>
+        <layout class="QVBoxLayout" name="verticalLayout">
+         <item>
+          <widget class="QLabel" name="label_6">
+           <property name="text">
+            <string>Zeros and Poles :</string>
+           </property>
+          </widget>
+         </item>
+         <item>
+          <widget class="QTextEdit" name="printText"/>
+         </item>
+         <item>
+          <widget class="QLabel" name="label_7">
+           <property name="text">
+            <string>Stability :</string>
+           </property>
+          </widget>
+         </item>
+         <item>
+          <widget class="QTextEdit" name="printTextIsStable"/>
+         </item>
+        </layout>
+       </item>
+      </layout>
      </widget>
     </item>
    </layout>
