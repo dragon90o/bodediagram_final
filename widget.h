@@ -9,6 +9,7 @@
 #include <QPushButton>
 #include <QTextEdit>
 #include <QtCharts/QChart>
+#include <QStringList>
 
 QT_BEGIN_NAMESPACE
 namespace Ui {

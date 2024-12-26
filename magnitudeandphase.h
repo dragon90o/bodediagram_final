@@ -24,7 +24,7 @@ class MagnitudeAndPhase : public QObject
 public:
     MagnitudeAndPhase(QWidget* parent = nullptr);
 
-    explicit MagnitudeAndPhase(int freqMin, int freqMax, std::string numerator, std::string denominator,
+    explicit MagnitudeAndPhase(double freqMin, double freqMax, std::string numerator, std::string denominator,
                                double s_real, QLineEdit *numeratorLineEdit,
                                QLineEdit *denominatorLineEdit, QLineEdit *sigmaLineEdit,
                                QLineEdit *frequencyMaxlineEdit, QLineEdit *frequencyMinlineEdit,
@@ -49,8 +49,8 @@ private:
     QLineEdit *frequencyMaxlineEdit;
     QLineEdit *frequencyMinlineEdit;
     double _s_real;
-    int _freqMin;
-    int _freqMax;
+    double _freqMin;
+    double _freqMax;
     std::string _numerator;
     std::string _denominator;
     QTextEdit *printText;

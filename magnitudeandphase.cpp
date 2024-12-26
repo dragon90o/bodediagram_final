@@ -14,7 +14,6 @@
 #include <QTextEdit>
 
 
-
 MagnitudeAndPhase::MagnitudeAndPhase(QWidget* parent)
     : QObject(parent), numeratorLineEdit(nullptr), denominatorLineEdit(nullptr), sigmaLineEdit(nullptr),
     frequencyMaxlineEdit(nullptr), frequencyMinlineEdit(nullptr),
@@ -24,7 +23,7 @@ MagnitudeAndPhase::MagnitudeAndPhase(QWidget* parent)
 }
 
 //contructor out of class
-MagnitudeAndPhase::MagnitudeAndPhase(int freqMin, int freqMax, std::string numerator, std::string denominator ,double s_real, QLineEdit *numeratorLineEdit, QLineEdit *denominatorLineEdit, QLineEdit *sigmaLineEdit, QLineEdit *frequencyMaxlineEdit,
+MagnitudeAndPhase::MagnitudeAndPhase(double freqMin, double freqMax, std::string numerator, std::string denominator ,double s_real, QLineEdit *numeratorLineEdit, QLineEdit *denominatorLineEdit, QLineEdit *sigmaLineEdit, QLineEdit *frequencyMaxlineEdit,
                                      QLineEdit *frequencyMinlineEdit, QTextEdit *printText, QTextEdit *printTextIsStable, QObject *parent)
     : QObject(parent),
     numeratorLineEdit(numeratorLineEdit),
@@ -240,22 +239,33 @@ std::pair<std::vector<double>, std::vector<double>> MagnitudeAndPhase::frequenci
                  << "Debugging: Frequency range - Min: " << _freqMin << ", Max: " << _freqMax << std::endl;
     qDebug() << QString::fromStdString(debugMessage.str());
 
+    //-------------
+    // Calculate log-spaced frequencies
+    int numPoints = 100;  // Número de puntos de frecuencia logarítmica (ajusta según sea necesario)
+    for (int i = 0; i < numPoints; i++) {
+        double logFreq = std::pow(10, std::log10(_freqMin) + i * (std::log10(_freqMax) - std::log10(_freqMin)) / (numPoints - 1));
+        freqVector.push_back(logFreq);
+        angularFreqVector.push_back(2 * M_PI * logFreq);
 
-    double freq = _freqMin;
-    while (freq <= _freqMax) {
-        freqVector.push_back(freq);
+    //------------
+
+
+    //double freq = _freqMin;
+    //while (freq <= _freqMax) {
+      //  freqVector.push_back(freq);
         // Angular frequency calculation
-        angularFreqVector.push_back(2 * M_PI * freq);
+      //  angularFreqVector.push_back(2 * M_PI * freq);
 
 
         //debugging Message1
         std::ostringstream debugMessage1;
-        debugMessage1 << "Frequency: " << freq << ", Angular Frequency: " << angularFreqVector.back() << "rad/s."<< std::endl;
+        debugMessage1 << "Frequency: " << logFreq << ", Angular Frequency: " << angularFreqVector.back() << "rad/s."<< std::endl;
         qDebug() << QString::fromStdString(debugMessage1.str());
-
-        freq *=2.0;
-
     }
+
+
+
+
     //debugging Message2
     std::ostringstream debugMessage2;
     debugMessage2 << "Debugging: Frequency vector size: " << freqVector.size() << std::endl
