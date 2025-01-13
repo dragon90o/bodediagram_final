@@ -11,6 +11,7 @@
 #include <QtCharts/QChart>
 #include <QStringList>
 
+
 QT_BEGIN_NAMESPACE
 namespace Ui {
 class Widget;
@@ -27,8 +28,13 @@ public:
 
 private slots:
 
+    void onClearButtonClicked();
     void onCalculatePushButtonclicked();
     void onExportButtonClicked();
+
+
+
+
 
 private:
     Ui::Widget *ui;

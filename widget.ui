@@ -68,6 +68,13 @@
    </property>
    <layout class="QHBoxLayout" name="horizontalLayout_2">
     <item>
+     <widget class="QPushButton" name="clearButton">
+      <property name="text">
+       <string>Clear</string>
+      </property>
+     </widget>
+    </item>
+    <item>
      <widget class="QGroupBox" name="groupBox">
       <property name="title">
        <string>Transfer Function</string>
@@ -78,7 +85,7 @@
          <item row="0" column="2" colspan="3">
           <widget class="QLineEdit" name="numeratorLineEdit">
            <property name="text">
-            <string>s^2 - 3</string>
+            <string>s^2-3</string>
            </property>
            <property name="clearButtonEnabled">
             <bool>true</bool>
