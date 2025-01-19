@@ -8,7 +8,6 @@
 #include <string>
 #include <iomanip>
 #include <regex>
-#include "exprtk/exprtk.hpp"
 #include <Eigen/Dense>
 #include <QDebug>
 #include <QTextEdit>
@@ -85,14 +84,15 @@ std::string MagnitudeAndPhase::processTransferFunction() {
 }
 
 
-//Method: parseCoefficients
+//Method: parseCoefficients (para polos y zeros)
 std::vector<double> MagnitudeAndPhase::parseCoefficients(const std::string& polynomial) {
     std::vector<double> coefficients;
     std::string modifiedPoly = polynomial;
 
     qDebug() << "Debugging Method parseCoefficients: ";
     // Regular expression to match terms of the polynomial
-    std::regex termRegex(R"(([+-]?\s*\d*\.?\d*)\s*(s(\^\d+)?)?)");
+    // viejo std::regex termRegex(R"(([+-]?\s*\d*\.?\d*)\s*(s(\^\d+)?)?)");
+     std::regex termRegex ("([+-]?\\d*\\.?\\d+)?([+-]?s(?:\\^\\d+)?(?:\\*\\d+)?)?");
     auto termsBegin = std::sregex_iterator(modifiedPoly.begin(), modifiedPoly.end(), termRegex);
     auto termsEnd = std::sregex_iterator();
 
@@ -122,17 +122,28 @@ std::vector<double> MagnitudeAndPhase::parseCoefficients(const std::string& poly
         std::string coefStr = match[1].str();
         std::string sTerm = match[2].str();
 
+
         //  Parse the coefficient (considering signs and empty strings)
         coefStr.erase(remove_if(coefStr.begin(), coefStr.end(), ::isspace), coefStr.end());
-
-        // Parse coefficient
         double coefficient = 1.0;
+
         if (!coefStr.empty() && coefStr != "+" && coefStr != "-") {
             coefficient = std::stod(coefStr);
         } else if (coefStr == "-") {
             coefficient = -1.0;
         }
+        else if (sTerm[0] == '-') {
+            // Handle cases where the term starts with '-s' but coefStr is empty
+            coefficient = -1.0;
+        }
 
+        // Extract and apply multiplier if present
+        size_t multPos = sTerm.find('*');
+        if (multPos != std::string::npos) {
+            std::string multiplierStr = sTerm.substr(multPos + 1);
+            double multiplier = std::stod(multiplierStr);
+            coefficient *= multiplier;
+        }
         // Determine the power of 's' based on the term
         int power = 0;
         if (!sTerm.empty()) {
@@ -279,9 +290,9 @@ std::complex<double> MagnitudeAndPhase::translateFunction(double angularFrequenc
     std::complex<double> s = (std::abs(_s_real) > 1e-9)? std::complex<double>(_s_real, angularFrequency): jw;
 
     // Evaluar cada término en la expresión
-    //viejo std::regex termRegex("([+-]?\\d*\\.?\\d+)?(s(\\^\\d+)?)?");
-
-    std::regex termRegex("([+-]?\\d*\\.?\\d+)?([+-]?s(\\^\\d+)?)?");
+    //viejo 2024 std::regex termRegex("([+-]?\\d*\\.?\\d+)?(s(\\^\\d+)?)?");
+   // viejo 2025std::regex termRegex("([+-]?\\d*\\.?\\d+)?([+-]?s(\\^\\d+)?)?");
+     std::regex termRegex ("([+-]?\\d*\\.?\\d+)?([+-]?s(?:\\^\\d+)?(?:\\*\\d+)?)?");
     auto termsBegin = std::sregex_iterator(functionStr.begin(), functionStr.end(), termRegex);
     auto termsEnd = std::sregex_iterator();
 
@@ -330,11 +341,11 @@ std::complex<double> MagnitudeAndPhase::translateFunction(double angularFrequenc
         result += termValue;
         //debug Message1
         std::ostringstream debugMessage1;
-        debugMessage1 << "Debugging: Term: " << match.str()
-                      << ", Coefficient: " << coefficient
-                      << ", Power: " << power
-                      << ", Term Value: " << termValue
-                      << ", Accumulated Result: " << result << std::endl;
+        debugMessage1 << "M Debugging: Term: " << match.str()
+                      << ", M Coefficient: " << coefficient
+                      << ", M Power: " << power
+                      << ", M Term Value: " << termValue
+                      << ", M Accumulated Result: " << result << std::endl;
 
         qDebug() << QString::fromStdString(debugMessage1.str());
 
