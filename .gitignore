@@ -2,7 +2,8 @@
 # ----------------------------------------------------------------------------
 /eigen-3.4.0/
 /exprtk/
-/build/
+/build/Desktop_Qt_6_7_3_MSVC2019_64bit-Debug
+/build/Desktop_Qt_6_7_3_MSVC2019_64bit-Profile
 /qcustomplot/
 *~
 *.autosave

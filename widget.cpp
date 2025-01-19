@@ -15,6 +15,8 @@
 #include <QRect>
 #include <QFontMetrics>
 #include <QPdfDocument>
+#include <QMessageBox>
+#include <algorithm>
 
 Widget::Widget(QWidget *parent)
     : QWidget(parent),
@@ -81,6 +83,18 @@ Widget::~Widget()
 
 void Widget::onCalculatePushButtonclicked()
 {
+
+    // Check if there is already a result displayed in the stability text field
+    if (!ui->printTextIsStable->toPlainText().isEmpty()) {
+        // Create the message box
+        QMessageBox msgBox;
+        msgBox.setIcon(QMessageBox::Warning);
+        msgBox.setWindowTitle("Warning");
+        msgBox.setText("Please clear the existing data before calculating again.");
+        msgBox.setStyleSheet("QLabel { color : red; }"); // Set text color to white
+        msgBox.exec();
+        return; // Exit the function if there is already a stability result
+    }
     //get input data from the UI
     std::string _numerator = ui->numeratorLineEdit->text().toStdString();
     std::string _denominator = ui->denominatorLineEdit->text().toStdString();
@@ -88,6 +102,21 @@ void Widget::onCalculatePushButtonclicked()
     double _freqMax = ui->frequencyMaxlineEdit->text().toDouble();
     QString sigmaText = ui->sigmaLineEdit->text();
     double _s_real = sigmaText.isEmpty() ? 0.0 : sigmaText.toDouble();
+
+    // Remove any spaces from the numerator and denominator
+    _numerator.erase(std::remove(_numerator.begin(), _numerator.end(), ' '), _numerator.end());
+    _denominator.erase(std::remove(_denominator.begin(), _denominator.end(), ' '), _denominator.end());
+
+    // Check if any required data is missing (except for sigma)
+    if (_numerator.empty() || _denominator.empty() || _freqMin == 0.0 || _freqMax == 0.0) {
+        QMessageBox msgBox;
+        msgBox.setIcon(QMessageBox::Warning);
+        msgBox.setWindowTitle("Missing Data");
+        msgBox.setText("Please enter all required fields (numerator, denominator, frequency range).");
+        msgBox.setStyleSheet("QLabel { color : red; }"); // Set text color to white
+        msgBox.exec();
+        return; // Exit the function if any required field is missing
+    }
 
     // Create an object for Magnitude an Phase calculations
     MagnitudeAndPhase mapObject(_freqMin, _freqMax, _numerator,_denominator, _s_real,
@@ -106,6 +135,10 @@ void Widget::onCalculatePushButtonclicked()
     // Get frequency data
     auto [angularFreqVector, freqVector] = mapObject.frequencies();
 
+    // Initialize variables for min and max magnitude
+    double minMagnitude = std::numeric_limits<double>::infinity();
+    double maxMagnitude = -std::numeric_limits<double>::infinity();
+
      // Create line series for Magnitude and Phase charts
     QLineSeries *magnitudeSeries = new QLineSeries();
     QLineSeries *phaseSeries = new QLineSeries();
@@ -119,6 +152,10 @@ void Widget::onCalculatePushButtonclicked()
         if (magnitudeResult.second == std::complex<double>(0, 0)) continue;
 
         double magnitudeDB = magnitudeResult.first; // Magnitud en dB
+
+        minMagnitude = std::min(minMagnitude, magnitudeDB); // Update min magnitude
+        maxMagnitude = std::max(maxMagnitude, magnitudeDB); // Update max magnitude
+
         double phaseDegrees = mapObject.calculatePhase(magnitudeResult.second); // Phase in degrees
 
         //Add data to the series
@@ -139,17 +176,21 @@ void Widget::onCalculatePushButtonclicked()
     // Configure the X and Y axes for the Magnitude chart
     QLogValueAxis *axisXMag = new QLogValueAxis();
     axisXMag->setTitleText("Frecuency (rad/s)");
-    axisXMag->setRange(_freqMin, _freqMax);
     axisXMag->setLabelFormat("%.2f");
     magnitudeChart->addAxis(axisXMag, Qt::AlignBottom);
     magnitudeSeries->attachAxis(axisXMag);
+    magnitudeChart->axisX()->setRange(_freqMin, _freqMax);
+    // Ensure the frequency range (frecMin and frecMax) are visible in the plot
+    axisXMag->setMinorTickCount(10);  // Set the number of minor ticks (optional)
+
 
 
     QValueAxis *axisYMag = new QValueAxis();
-    axisYMag->setTitleText("Magnitude (dB)");
-    axisYMag->setRange(-30, 20);
+    axisYMag->setTitleText("Mag (dB)");
+    axisYMag->setRange(minMagnitude - 5, maxMagnitude + 5);
     magnitudeChart->addAxis(axisYMag, Qt::AlignLeft);
     magnitudeSeries->attachAxis(axisYMag);
+
 
     // Set the chart for the Magnitude graphic view
     ui->magnitudeGraphicView->setChart(magnitudeChart);
@@ -160,8 +201,8 @@ void Widget::onCalculatePushButtonclicked()
         phaseChart = nullptr;
     }
     phaseChart = new QChart();
-    phaseChart->setTitle("Phase Diagram");
-    phaseChart->addSeries(phaseSeries); // Apply theme Blue Cerulean
+    phaseChart->setTitle("Phase (degrees)");
+    phaseChart->addSeries(phaseSeries);
 
      // Configure the X and Y axes for the Phase chart
     QLogValueAxis *axisXPhase = new QLogValueAxis();
@@ -170,9 +211,11 @@ void Widget::onCalculatePushButtonclicked()
     axisXPhase->setLabelFormat("%.2f");
     phaseChart->addAxis(axisXPhase, Qt::AlignBottom);
     phaseSeries->attachAxis(axisXPhase);
+    axisXPhase->setMinorTickCount(10);  // Set the number of minor ticks (optional)
+
 
     QValueAxis *axisYPhase = new QValueAxis();
-    axisYPhase->setTitleText("Phase (degrees)");
+    axisYPhase->setTitleText("Phase (°)");
     axisYPhase->setRange(-360, 360);
     phaseChart->addAxis(axisYPhase, Qt::AlignLeft);
     phaseSeries->attachAxis(axisYPhase);
@@ -188,6 +231,14 @@ void Widget::onExportButtonClicked()
     // Check if the charts have been generated
     if (!magnitudeChart || !phaseChart) {
         qDebug() << "Las gráficas no se han generado aún.";
+        return;
+    }
+
+    // Check if the charts are blank (empty or not drawn)
+    if (magnitudeChart->series().isEmpty() || phaseChart->series().isEmpty()) {
+        // Show a message box if the charts are empty
+        QMessageBox::warning(this, "Error", "The charts are blank and cannot be exported.",
+                             QMessageBox::Ok);
         return;
     }
 
