@@ -11,7 +11,6 @@
 #include <utility>
 #include <iomanip>
 #include <regex>
-#include "exprtk/exprtk.hpp"
 #include <QObject>
 #include <Eigen/Dense>
 #include <QTextEdit>
