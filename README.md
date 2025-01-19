@@ -2,7 +2,7 @@
 
 # Requirements for compiling the project
 
-## It is recommended to have Qt version 6.7.3 installed along with the Eigen library.
+## This project is compiled using qmake. It is recommended to have Qt version 6.7.3 installed along with the Eigen library.
 ## This project was developed on Windows. If compiling on a different operating system,
 ## please verify the directory structure on bodeDiagram_Final.pro and ensure the Eigen include paths are correctly configured.
 
