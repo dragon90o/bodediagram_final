@@ -11,6 +11,7 @@
 #include <Eigen/Dense>
 #include <QDebug>
 #include <QTextEdit>
+#include <algorithm>
 
 // Constructor for default initialization
 MagnitudeAndPhase::MagnitudeAndPhase(QWidget* parent)
@@ -43,45 +44,44 @@ MagnitudeAndPhase::MagnitudeAndPhase(double freqMin, double freqMax, std::string
 }
 //Method: processTransferFunction
 std::string MagnitudeAndPhase::processTransferFunction() {
-    // Convert input strings into coefficients for numerator and denominator
-    qDebug()<< "Debugging Method processTransferFunction: ";
+    qDebug() << "\033[32mDebugging Method processTransferFunction: \033[0m";
 
     std::vector<std::complex<double>> poles;
     std::vector<std::complex<double>> zeros;
 
-    auto numCoefficients = parseCoefficients(_numerator);
+    auto numCoefficients = parseCoefficients(_numerator); // calls parseCoefficients
     auto denCoefficients = parseCoefficients(_denominator);
 
     // Calculate zeros and poles
-    zeros = findRoots(numCoefficients);// Parse numerator coefficients
-    poles = findRoots(denCoefficients);// Parse denominator coefficients
+    zeros = findRoots(numCoefficients);  // Parse numerator coefficients
+    poles = findRoots(denCoefficients);  // Parse denominator coefficients
 
-     // Print the results for debugging cpp
-    std::cout << "Zeros (Roots of the Numerator): ";
+    // Debug output for zeros (roots of the numerator) using qDebug
+    qDebug() << "Zeros (Roots of the Numerator):";
     for (const auto& zero : zeros) {
-        std::cout << zero << " ";
+        qDebug() << QString("(%1, %2)").arg(zero.real()).arg(zero.imag());
     }
-    std::cout << std::endl;
 
-    std::cout << "Poles (Roots of the Denominator): ";
+    // Debug output for poles (roots of the denominator) using qDebug
+    qDebug() << "Poles (Roots of the Denominator):";
     for (const auto& pole : poles) {
-        std::cout << pole << " ";
+        qDebug() << QString("(%1, %2)").arg(pole.real()).arg(pole.imag());
     }
-    std::cout << std::endl;
 
-    //Print the results for debugging qt
+    // Create result string for further use (returning the result as a string)
     std::ostringstream result;
-    result << "Zeros (Roots of the Numerator): ";
+    result << "Zeros (Roots of the Numerator):";
     for (const auto& zero : zeros) {
         result << zero << " ";
     }
-    result << "\nPoles (Roots of the Denominator): ";
+    result << "Poles (Roots of the Denominator):";
     for (const auto& pole : poles) {
         result << pole << " ";
-
     }
+
     return result.str();
 }
+
 
 
 //Method: parseCoefficients (para polos y zeros)
@@ -227,7 +227,7 @@ std::vector<std::complex<double>> MagnitudeAndPhase::findRoots(const std::vector
 
     // Adjust roots based on sigma (real part of 's')
     std::vector<std::complex<double>> result(roots.size());
-    for (std::size_t i = 0; i < roots.size(); ++i) {
+    for (Eigen::VectorXcd::Index i = 0; i < roots.size(); ++i) {
         result[i] = (std::abs(_s_real) > 1e-9) ? roots[i] + _s_real : roots[i];
         debugMessage.str("");
         debugMessage << "Root before adjustment: " << roots[i] << ", after adjustment with sigma: " << result[i] << std::endl;
@@ -435,19 +435,63 @@ double MagnitudeAndPhase::calculatePhase(const std::complex<double>& transferFun
     return phaseDegrees;
 }
 //Method: isStable
-bool MagnitudeAndPhase::isStable(){
 
-    std::vector<std::complex<double>> poles;
 
-    if (poles.empty()) {
-        // no poles, i asume the system cannot be stable
-        return false;
+bool MagnitudeAndPhase::isStable() {
+    qDebug() << "\033[32mDebugging isStable: Calling processTransferFunction()\033[0m";
+
+    // Call processTransferFunction to get the result as a string
+    std::string result = processTransferFunction();  // This function returns a std::string
+    qDebug() << "\033[34mResult from processTransferFunction():\033[0m" << QString::fromStdString(result);
+
+    // Process the result to separate zeros and poles
+    size_t pos = result.find("Poles (Roots of the Denominator):");
+    if (pos == std::string::npos) {
+        qDebug() << "\033[31mNo poles found. The system is considered unstable.\033[0m";
+        return false;  // If the "Poles" string is not found, the system is unstable
     }
+
+    // Extract the poles part
+    std::string polesPart = result.substr(pos + std::string("Poles (Roots of the Denominator):").length());
+
+    // Now process the poles with regex
+    std::vector<std::complex<double>> poles;
+    std::regex polePattern(R"(\((-?\d*\.\d+|\d+),\s*(-?\d*\.\d+|\d+)\))");
+
+    std::sregex_iterator iter(polesPart.begin(), polesPart.end(), polePattern);
+    std::sregex_iterator end;
+
+    while (iter != end) {
+        double realPart = std::stod((*iter)[1].str());
+        double imagPart = (*iter)[2].str().empty() ? 0.0 : std::stod((*iter)[2].str()); // If the imaginary part is empty, set it to 0
+        poles.push_back(std::complex<double>(realPart, imagPart));
+        qDebug() << "Extracted pole: (" << realPart << ", " << imagPart << ")";  // Debug for each extracted pole
+        ++iter;
+    }
+
+    // Verify if poles were extracted correctly
+    if (poles.empty()) {
+        qDebug() << "\033[31mNo poles found. The system is considered unstable.\033[0m";
+        return false;  // If no poles are found, the system is unstable
+    }
+
+    // Verify stability based on poles
+    qDebug() << "\033[34mChecking poles for stability:\033[0m";
+    bool stable = true; // Assume stable initially
 
     for (const auto& pole : poles) {
-        if (pole.real() >=0) {
-            return false; // unstable system if a real pole part is not negative
+        qDebug() << QString("Pole: (%1, %2)").arg(pole.real()).arg(pole.imag());
+        if (pole.real() > 0) {
+            qDebug() << "\033[31mPole has positive real part - contributes to instability.\033[0m";
+            stable = false; // Mark as unstable but continue checking other poles
         }
     }
-    return true; // stable system if all poles have a real negative part
+
+    if (stable) {
+        qDebug() << "\033[32mAll poles have negative real part. The system is stable.\033[0m";
+    } else {
+        qDebug() << "\033[31mSystem is unstable due to one or more poles with positive real part.\033[0m";
+    }
+
+    return stable;
 }
