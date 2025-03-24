@@ -12,6 +12,9 @@
 #include <QDebug>
 #include <QTextEdit>
 #include <algorithm>
+#include <QString>
+
+
 
 // Constructor for default initialization
 MagnitudeAndPhase::MagnitudeAndPhase(QWidget* parent)
@@ -157,24 +160,21 @@ std::vector<double> MagnitudeAndPhase::parseCoefficients(const std::string& poly
         // Store the coefficient at the correct position in the vector
         coefficients[maxPower - power] = coefficient;
 
-        // debugMessage
-        std::ostringstream debugMessage;
-        debugMessage << "Debugging: term: " << match.str()
-                     << ", coefficient: " << coefficient
-                     << ", power: " << power
-                     << ", maxPower: " << maxPower;
-        debugMessage << "\n";
-        qDebug() << QString::fromStdString(debugMessage.str());
+        // Mensaje de depuración
+        QString debugMessage = QString("Debugging: term: %1, coefficient: %2, power: %3, maxPower: %4")
+                                   .arg(QString::fromStdString(match.str()))
+                                   .arg(coefficient)
+                                   .arg(power)
+                                   .arg(maxPower);
+        qDebug() << debugMessage;
     }
 
-    //debug Message1
-    std::ostringstream debugMessage1;
-    debugMessage1 << "Debugging: Coefficients vector: ";
+    // Mensaje de depuración de los coeficientes
+    QString debugMessage1 = "Debugging: Coefficients vector: ";
     for (const auto& coef : coefficients) {
-        debugMessage1 << coef << " ";
+        debugMessage1.append(QString::number(coef) + " ");
     }
-    debugMessage1 << "\n";
-    qDebug() << QString::fromStdString(debugMessage1.str());
+    qDebug() << debugMessage1;
 
     return coefficients;
 }
@@ -190,14 +190,13 @@ std::vector<std::complex<double>> MagnitudeAndPhase::findRoots(const std::vector
     if (coefficients.size() != degree + 1) throw std::invalid_argument("The size of the coefficients vector must be degree + 1.");
 
     //debug Message
-    std::ostringstream debugMessage;
-    debugMessage << "Debugging: Degree of polynomial: " << degree << std::endl
-                 << "Debugging: Coefficients: ";
+    QString debugMessage = QString("Debugging: Degree of polynomial: %1\nDebugging: Coefficients: ")
+                               .arg(degree);
     for (const auto& coef : coefficients) {
-        debugMessage << coef << " ";
+        debugMessage.append(QString::number(coef) + " ");
     }
-    debugMessage << "\n";
-    qDebug() << QString::fromStdString(debugMessage.str());
+    qDebug() << debugMessage;
+
 
    // Create a companion matrix for solving the polynomial roots
     Eigen::MatrixXd companion(degree, degree);
@@ -207,19 +206,24 @@ std::vector<std::complex<double>> MagnitudeAndPhase::findRoots(const std::vector
     //Create a companion matrix for solving the polynomial roots
     for (std::size_t i = 1; i < degree; ++i) {
         companion( i - 1 , i ) = 1.0;
-        std::cout << "Subdiagonal: companion(" << (i - 1) << ", " << i << ") = 1.0" << std::endl;
+        qDebug() << QString("Subdiagonal: companion(%1, %2) = 1.0").arg(i - 1).arg(i);
     }
     //  Assign the last row of the companion matrix using the coefficients
     for (std::size_t i = 0; i < degree; ++i) {
         companion(degree - 1, i) = -coefficients[degree - i] / coefficients[0];
-        std::cout << "Last row: companion(" << (degree - 1) << ", "
-                  << i << ") = "
-                  << -coefficients[degree - i] / coefficients[0] << std::endl;
+        qDebug() << QString("Last row: companion(%1, %2) = %3")
+                        .arg(degree - 1)
+                        .arg(i)
+                        .arg(-coefficients[degree - i] / coefficients[0]);
     }
 
-    debugMessage.str("");
-    debugMessage << "Debugging: Companion matrix:\n" << companion << std::endl;
-    qDebug() << QString::fromStdString(debugMessage.str());
+    // Mensaje de depuración para la matriz compañera
+    std::stringstream ss;
+    ss << companion.format(Eigen::IOFormat(Eigen::StreamPrecision, 0, " ", " "));  // Formatea la matriz y la convierte a string
+
+    debugMessage = QString("Debugging: Companion matrix: ") + QString::fromStdString(ss.str());  // Convierte std::string a QString
+    qDebug() << debugMessage;
+
 
     // Solve the companion matrix to find the roots (eigenvalues)
     Eigen::EigenSolver<Eigen::MatrixXd> solver(companion);
@@ -229,14 +233,21 @@ std::vector<std::complex<double>> MagnitudeAndPhase::findRoots(const std::vector
     std::vector<std::complex<double>> result(roots.size());
     for (Eigen::VectorXcd::Index i = 0; i < roots.size(); ++i) {
         result[i] = (std::abs(_s_real) > 1e-9) ? roots[i] + _s_real : roots[i];
-        debugMessage.str("");
-        debugMessage << "Root before adjustment: " << roots[i] << ", after adjustment with sigma: " << result[i] << std::endl;
-        qDebug() << QString::fromStdString(debugMessage.str());
-    }
+        debugMessage = QString("Root before adjustment: %1 + %2i, after adjustment with sigma: %3 + %4i")
+                           .arg(roots[i].real())   // Parte real de la raíz original
+                           .arg(roots[i].imag())   // Parte imaginaria de la raíz original
+                           .arg(result[i].real())  // Parte real de la raíz ajustada
+                           .arg(result[i].imag()); // Parte imaginaria de la raíz ajustada
 
-    qDebug() << "Debugging: Roots (final, adjusted or original): " ;
+        qDebug() << debugMessage;
+    }
+    // Mensaje de depuración de las raíces finales (ajustadas o originales)
+    qDebug() << "Debugging: Roots (final, adjusted or original): ";
     for (const auto& root : result) {
-        std::cout << root << std::endl;
+        // Imprimir la parte real y la parte imaginaria por separado
+        qDebug() << QString("Root: %1 + %2i")
+                        .arg(root.real())  // Parte real
+                        .arg(root.imag()); // Parte imaginaria
     }
 
     return result;
@@ -248,10 +259,7 @@ std::pair<std::vector<double>, std::vector<double>> MagnitudeAndPhase::frequenci
     qDebug() << "Debugging Method Frequencies: " ;
 
     //debug Message
-    std::ostringstream debugMessage;
-    debugMessage << "Debugging: Frequencies method" << std::endl
-                 << "Debugging: Frequency range - Min: " << _freqMin << ", Max: " << _freqMax << std::endl;
-    qDebug() << QString::fromStdString(debugMessage.str());
+    qDebug() << "Debugging: Frequency range - Min:" << _freqMin << ", Max:" << _freqMax;
 
 
     // Calculate log-spaced frequencies
@@ -261,23 +269,13 @@ std::pair<std::vector<double>, std::vector<double>> MagnitudeAndPhase::frequenci
         freqVector.push_back(logFreq);
         angularFreqVector.push_back(2 * M_PI * logFreq);
 
-
-
-
         //debugging Message1
-        std::ostringstream debugMessage1;
-        debugMessage1 << "Frequency: " << logFreq << ", Angular Frequency: " << angularFreqVector.back() << "rad/s."<< std::endl;
-        qDebug() << QString::fromStdString(debugMessage1.str());
+        qDebug() << "Frequency:" << logFreq << ", Angular Frequency:" << angularFreqVector.back() << "rad/s.";
     }
 
-
-
-
     //debugging Message2
-    std::ostringstream debugMessage2;
-    debugMessage2 << "Debugging: Frequency vector size: " << freqVector.size() << std::endl
-                  << "Debugging: Angular Frequency vector size: " << angularFreqVector.size() << std::endl;
-    qDebug() << QString::fromStdString(debugMessage2.str());
+    qDebug() << "Debugging: Frequency vector size:" << freqVector.size();
+    qDebug() << "Debugging: Angular Frequency vector size:" << angularFreqVector.size();
 
 
     // Returns the pair of vectors
@@ -287,46 +285,44 @@ std::pair<std::vector<double>, std::vector<double>> MagnitudeAndPhase::frequenci
 std::complex<double> MagnitudeAndPhase::translateFunction(double angularFrequency, bool isNumerator) {
     std::string functionStr = isNumerator ? _numerator : _denominator;
     std::complex<double> jw(0.0, angularFrequency); // j * omega
-    std::complex<double> s = (std::abs(_s_real) > 1e-9)? std::complex<double>(_s_real, angularFrequency): jw;
+    std::complex<double> s = (std::abs(_s_real) > 1e-9) ? std::complex<double>(_s_real, angularFrequency) : jw;
 
-    // Evaluar cada término en la expresión
-    //viejo 2024 std::regex termRegex("([+-]?\\d*\\.?\\d+)?(s(\\^\\d+)?)?");
-   // viejo 2025std::regex termRegex("([+-]?\\d*\\.?\\d+)?([+-]?s(\\^\\d+)?)?");
-     std::regex termRegex ("([+-]?\\d*\\.?\\d+)?([+-]?s(?:\\^\\d+)?(?:\\*\\d+)?)?");
+    // Expresión regular para evaluar términos de la función
+    std::regex termRegex("([+-]?\\d*\\.?\\d+)?([+-]?s(?:\\^\\d+)?(?:\\*\\d+)?)?");
     auto termsBegin = std::sregex_iterator(functionStr.begin(), functionStr.end(), termRegex);
     auto termsEnd = std::sregex_iterator();
 
-    std::complex<double> result(0.0, 0.0);// Result accumulator
+    std::complex<double> result(0.0, 0.0); // Acumulador del resultado
     qDebug() << "\033[32mDebugging Method translateFunction: \033[0m";
 
-    //debug Message
-    std::ostringstream debugMessage;
-    debugMessage << "Debugging: Evaluating function: " << functionStr << std::endl
-                 << "Debugging: Angular frequency (w): " << angularFrequency << std::endl;
-    qDebug() << QString::fromStdString(debugMessage.str());
+    // Mensaje de depuración inicial
+    QString functionStrQt = QString::fromStdString(functionStr);
+    qDebug() << "Debugging: Evaluating function:" << functionStrQt;
+    qDebug() << "Debugging: Angular frequency (w):" << angularFrequency;
 
-    // Evaluate each term in the function
+    // Evaluar cada término en la función
     for (auto it = termsBegin; it != termsEnd; ++it) {
         std::smatch match = *it;
         if (match.str().empty()) continue;
 
-        qDebug() << "Match[0]: " << QString::fromStdString(match[0].str());
+        // Depuración del término actual
+        QString matchStr = QString::fromStdString(match[0].str());
+        qDebug() << "Match[0]:" << matchStr;
 
-        // Extract coefficients
+        // Extraer coeficientes
         double coefficient = 1.0; // Por defecto
         std::string coefStr = match[1].str();
-
         if (!coefStr.empty()) {
-            coefficient = std::stod(coefStr); // Convert to number
+            coefficient = std::stod(coefStr); // Convertir a número
         } else if (coefStr == "-" || coefStr == "+") {
-            // make sure it takes de sign at the beginning of the funtion
             coefficient = (coefStr == "-") ? -1.0 : 1.0;
         }
 
         if (match[0].str()[0] == '-') {
             coefficient = -std::abs(coefficient);
         }
-        // extraxt ^ of s
+
+        // Extraer la potencia de "s"
         int power = 0;
         if (!match[2].str().empty()) {
             if (match[2].str().find('^') != std::string::npos) {
@@ -336,71 +332,67 @@ std::complex<double> MagnitudeAndPhase::translateFunction(double angularFrequenc
             }
         }
 
-        // Evaluate term and accumulate
+        // Evaluar el término y acumular
         std::complex<double> termValue = coefficient * std::pow(s, power);
         result += termValue;
-        //debug Message1
-        std::ostringstream debugMessage1;
-        debugMessage1 << "M Debugging: Term: " << match.str()
-                      << ", M Coefficient: " << coefficient
-                      << ", M Power: " << power
-                      << ", M Term Value: " << termValue
-                      << ", M Accumulated Result: " << result << std::endl;
 
-        qDebug() << QString::fromStdString(debugMessage1.str());
+        // Depuración del valor del término y el resultado acumulado
+        QString termValueStr = QString("(%1, %2)").arg(termValue.real()).arg(termValue.imag());
+        QString resultStr = QString("(%1, %2)").arg(result.real()).arg(result.imag());
 
+        qDebug() << "M Debugging: Term:" << matchStr
+                 << ", M Coefficient:" << coefficient
+                 << ", M Power:" << power
+                 << ", M Term Value:" << termValueStr
+                 << ", M Accumulated Result:" << resultStr;
     }
-    //debug Message2
-    std::ostringstream debugMessage2;
-    debugMessage2 << "Debugging: Final translated function result: " << result << std::endl;
-    qDebug() << QString::fromStdString(debugMessage2.str());
+
+    // Mensaje de depuración final con el resultado acumulado
+    QString finalResultStr = QString("Debugging: Final translated function result: (%1, %2)").arg(result.real()).arg(result.imag());
+    qDebug() << finalResultStr;
 
     return result;
 }
 // Method:calculateMagnitude
+// Function to convert a std::complex<double> to QString
+QString complexToQString(const std::complex<double>& c) {
+    return QString("(%1, %2)").arg(c.real()).arg(c.imag());
+}
+// Method: calculateMagnitude
 std::pair<double, std::complex<double>> MagnitudeAndPhase::calculateMagnitude(double angularFrequency) {
     // Calculate the complex frequency s = sigma + jw
     std::complex<double> s = _s_real + std::complex<double>(0, angularFrequency);
 
-    qDebug() << "Debugging Method CalculateMagnitude: ";
+    qDebug() << "[Debug] Method: CalculateMagnitude";
 
-    //debug Message
-    std::ostringstream debugMessage1;
-    debugMessage1 << "Debugging: s = sigma + jw = " << s << std::endl
-                  << "Debugging: Magnitude of s = |s| = " << std::abs(s)
-                  << std::endl;
-
-    qDebug() << QString::fromStdString(debugMessage1.str());
+    // Debug Message 1
+    qDebug() << "[Debug] s = sigma + jw =" << complexToQString(s);
+    qDebug() << "[Debug] Magnitude of s = |s| =" << std::abs(s);
 
     // Get the results for numerator and denominator functions
     std::complex<double> resultNumerator = translateFunction(angularFrequency, true);
     std::complex<double> resultDenominator = translateFunction(angularFrequency, false);
 
-     // Prevent division by a very small denominator
+    // Prevent division by a very small denominator
     if (std::abs(resultDenominator) < 1e-12) {
         std::cerr << "Error: Denominator is too close to zero!" << std::endl;
         return {};
     }
 
-
     // Compute transfer function as numerator/denominator
     std::complex<double> transferFunction = resultNumerator / resultDenominator;
     double magnitude = std::abs(transferFunction);
-    qDebug() << "Magnitude (absolute value): " << magnitude;
+    qDebug() << "[Debug] Magnitude (absolute value):" << magnitude;
 
     // Compute magnitude in dB
     double magnitudeDB = (magnitude > 0) ? 20 * std::log10(magnitude) : -std::numeric_limits<double>::infinity();
-    qDebug() << "Magnitude (dB): nuevo : " << magnitudeDB;
+    qDebug() << "[Debug] Magnitude (dB):" << magnitudeDB;
 
-    //double magnitudeDB = 20 * std::log10(std::abs(transferFunction));
-    //debug Message2
-    std::ostringstream debugMessage2;
-    debugMessage2 << "Numerator: " << resultNumerator << std::endl
-                  << "Denominator: " << resultDenominator << std::endl
-                  << "Transfer Function |H(jw)| : " << transferFunction << std::endl
-                  <<"Magnitude (dB): "<<magnitudeDB << std::endl;
-    qDebug() << QString::fromStdString(debugMessage2.str());
-
+    // Debug Message 2
+    qDebug() << "[Debug] Numerator:" << complexToQString(resultNumerator);
+    qDebug() << "[Debug] Denominator:" << complexToQString(resultDenominator);
+    qDebug() << "[Debug] Transfer Function |H(jw)| :" << complexToQString(transferFunction);
+    qDebug() << "[Debug] Magnitude (dB):" << magnitudeDB;
 
     return {magnitudeDB, transferFunction};
 }
@@ -417,21 +409,14 @@ double MagnitudeAndPhase::calculatePhase(const std::complex<double>& transferFun
 
     }
 
-    qDebug()<<"Debugging Method CalculatePhase: ";
-    //Debugging output for phase
-    qDebug() << "Debugging: Phase in degrees = " << phaseDegrees;
-    //debug Message
-    std::ostringstream debugMessage;
-    debugMessage << "Debugging: Transfer Function = " << transferFunction
-                 << std::endl
-                 << "Debugging: Real = " << transferFunction.real() << std::endl
-                 << "Debugging: Imaginary = " << transferFunction.imag()
-                 << std::endl;
-    qDebug() << QString::fromStdString(debugMessage.str());
+    // Debug messages
+    qDebug() << "[Debug] Method: CalculatePhase";
+    qDebug() << "[Debug] Phase in degrees =" << phaseDegrees;
+    qDebug() << "[Debug] Transfer Function: Real =" << transferFunction.real()
+             << ", Imaginary =" << transferFunction.imag();
 
-    std::cout << "Debugging: Phase (radians) = " << phaseRadians << std::endl
-              << "Debugging: Phase (degrees) = " << phaseDegrees << std::endl;
-
+    qDebug() << "[Debug] Phase (radians) =" << phaseRadians;
+    qDebug() << "[Debug] Phase (degrees) =" << phaseDegrees;
     return phaseDegrees;
 }
 //Method: isStable
