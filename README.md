@@ -1,4 +1,4 @@
-# *** Bode Diagram Viewer Project ***
+** Bode Diagram Viewer Project **
 
 # Requirements for compiling the project
 
